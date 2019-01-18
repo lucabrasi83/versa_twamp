@@ -29,12 +29,11 @@ Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/tw
         . `crontab -e`
         
         . Cron Job content below:
-        
-           ```
+        ```bash
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
             */5 * * * * cd /home/admin/twamp && ./twamp_sender.sh
-            ```
+        ```
         . Save the Cron Job definition and verify it's properly accepted with `crontab -l`
     
     - Responder:
@@ -43,11 +42,11 @@ Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/tw
         
         . Cron Job Content below:
         
-            ```
+        ```bash
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
             */5 * * * * cd /home/admin/twamp && ./twamp_responder.sh
-            ```
+        ```
         
         . Save the Cron Job definition and verify it's properly accepted with `crontab -l`
 
