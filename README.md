@@ -59,6 +59,8 @@ These parameters can be customized in the variables set in the file as below:
 
 ##### Make sure PORTS and DSCP are mapped accordingly for each Class of Service*
 ##### Eg: PORTS=(20001 20002) DSCP=(ef cs1) -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
+
+***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
 PORTS=(20001 20002 20003)
 DSCP=(ef af31 cs7)
@@ -100,6 +102,8 @@ These parameters can be customized in the variables set in the file as below:
 
 ##### Make sure PORTS and DSCP are mapped accordingly for each Class of Service*
 ##### Eg: PORTS=(20001 20002) DSCP=(ef cs1) -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
+
+***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
 PORTS=(20001 20002 20003)
 DSCP=(ef af31 cs7)
