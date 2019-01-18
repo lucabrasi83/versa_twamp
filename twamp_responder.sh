@@ -37,7 +37,7 @@ if [[  ${TWAMP_RESPONDER_PROC_NUM} -eq 0  ]]; then
 
     for i in ${!DSCP[@]}; do
         /sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py responder \
-         --dscp ${DSCP[i]} ${LOCAL_END_IP}:${PORTS[i]} \
+         --dscp ${DSCP[i]} --padding 1 ${LOCAL_END_IP}:${PORTS[i]} \
             >>${LOG_FILE_NAME} 2>&1 & done
 else
     echo "$(date) Responder Processes Already Running as below: " >> ${LOG_FILE_NAME}

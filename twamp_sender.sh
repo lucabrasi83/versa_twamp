@@ -34,6 +34,6 @@ fi
 
 for i in ${!DSCP[@]}; do
 	/sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py sender \
-        --dscp ${DSCP[i]} -c 10 -i 10 ${FAR_END_IP}:${PORTS[i]} \
+        --dscp ${DSCP[i]} -c 10 -i 10 --padding 1 ${FAR_END_IP}:${PORTS[i]} \
 		${LOCAL_END_IP}:${PORTS[i]} -rh ${REMOTE_HOSTNAME} \
 		>> ${LOG_FILE_NAME} 2>&1 & done
