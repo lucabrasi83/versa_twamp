@@ -2,7 +2,7 @@
 
 This repo contains custom TWAMP Python script to offer TWAMP Sender/Responder functionality for Versa FlexVNF.
 
-Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/twamp directory.
+TWAMP session results are saved within a CSV file named twamp_stats.csv in the /home/admin/twamp directory.
 
 ## Contents
 
