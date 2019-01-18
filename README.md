@@ -30,7 +30,7 @@ Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/tw
         
         . Cron Job content below:
         
-           ```shell
+           ```
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
             */5 * * * * cd /home/admin/twamp && ./twamp_sender.sh
@@ -43,7 +43,7 @@ Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/tw
         
         . Cron Job Content below:
         
-            ```shell
+            ```
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
             */5 * * * * cd /home/admin/twamp && ./twamp_responder.sh
