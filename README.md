@@ -12,17 +12,18 @@ Each Test is saved within a CSV file named twamp_stats.csv in the /home/admin/tw
 
 
 ## Installation
+1. Login as root user on the Versa FlexVNF Shell
 
-1. Create twamp directory in /home/admin directory:
+2. Create twamp directory in /home/admin directory:
     - `mkdir /home/admin/twamp`
 
-2. Copy the Python script twampycsv.py and Shell scripts (twamp_sender.sh / twamp_responder.sh) in the 
+3. Copy the Python script twampycsv.py and Shell scripts (twamp_sender.sh / twamp_responder.sh) in the 
 `/home/admin/twamp` directory.
 
-3. Ensure the Shell scripts are executable:
+4. Ensure the Shell scripts are executable:
     - `cd /home/admin/twamp && chmod a+x twamp_*.sh`
 
-4. As root user, create the Cron Jobs on the Responder and Sender:
+5. As root user, create the Cron Jobs on the Responder and Sender:
 
     - Sender:
     
