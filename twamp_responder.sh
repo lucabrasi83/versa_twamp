@@ -2,23 +2,6 @@
 
 # Versa TWAMP Responder Wrapper Script
 
-
-# Kill All Python processes running responder if kill argument is passed
-if [[ $1 == 'kill' ]]; then
-     proc_array_num=$(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | wc -l )
-
-     if [[ ${proc_array_num} -eq 0 ]]; then
-        echo "Nothing to kill"
-     else
-        proc_array=( $(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | awk '{print $2}') )
-        for p in ${proc_array[@]}; do
-            echo "Killing PID ${p}"
-            kill ${p}
-        done
-     fi
-     exit 0
-fi
-
 # Make sure PORTS and DSCP are mapped accordingly for each Class of Service
 # Eg: PORTS=("20001" "20002") DSCP=("ef" "cs1") -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
 PORTS=("20001" "20002" "20003")
@@ -36,6 +19,21 @@ VERSA_TRANSPORT_VR="WAN-Transport-VR"
 # TWAMP Responder additional options
 TWAMP_RESPONDER_OPTIONS="--padding 1"
 
+# Kill All Python processes running responder if kill argument is passed
+if [[ $1 == 'kill' ]]; then
+     proc_array_num=$(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | wc -l )
+
+     if [[ ${proc_array_num} -eq 0 ]]; then
+        echo "Nothing to kill"
+     else
+        proc_array=( $(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | awk '{print $2}') )
+        for p in ${proc_array[@]}; do
+            echo "Killing PID ${p}"
+            kill ${p}
+        done
+     fi
+     exit 0
+fi
 
 if [[ ${#PORTS[@]} != ${#DSCP[@]} ]]; then
 	echo 'PORTS and DSCP Array Lengths are not matching' >>${LOG_FILE_NAME}
