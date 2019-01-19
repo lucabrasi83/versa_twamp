@@ -2,44 +2,64 @@
 
 # Versa TWAMP Responder Wrapper Script
 
+
+# Kill All Python processes running responder if kill argument is passed
+if [[ $1 == 'kill' ]]; then
+     proc_array_num=$(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | wc -l )
+
+     if [[ ${proc_array_num} -eq 0 ]]; then
+        echo "Nothing to kill"
+     else
+        proc_array=( $(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" | awk '{print $2}') )
+        for p in ${proc_array[@]}; do
+            echo "Killing PID ${p}"
+            kill ${p}
+        done
+     fi
+     exit 0
+fi
+
 # Make sure PORTS and DSCP are mapped accordingly for each Class of Service
-# Eg: PORTS=(20001 20002) DSCP=(ef cs1) -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
-PORTS=(20001 20002 20003)
-DSCP=(ef af31 cs7)
+# Eg: PORTS=("20001" "20002") DSCP=("ef" "cs1") -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
+PORTS=("20001" "20002" "20003")
+DSCP=("ef" "af31" "cs7")
 
 # Versa FlexVNF Local IP to source TWAMP packets
-LOCAL_END_IP=192.168.1.120
+LOCAL_END_IP="198.18.10.10"
 
 # Standard Output & Error will be recorded in this file
-LOG_FILE_NAME=twamp_logs.txt
+LOG_FILE_NAME="twamp_logs.txt"
 
 # Versa FlexVNF Local VR to access network namespace
-VERSA_TRANSPORT_VR=WAN-Transport-VR
+VERSA_TRANSPORT_VR="WAN-Transport-VR"
 
-# Capture the number of TWAMP responder processes running
-TWAMP_RESPONDER_PROC_NUM=$(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep" |  wc -l)
-
-# Capture PID and full execution path of running TWAMP responder processes
-TWAMP_RESPONDER_PROCS=$(ps aux | grep  "python3 twampycsv.py responder" | grep -v "grep")
+# TWAMP Responder additional options
+TWAMP_RESPONDER_OPTIONS="--padding 1"
 
 
 if [[ ${#PORTS[@]} != ${#DSCP[@]} ]]; then
-   echo 'PORTS and DSCP Array Lengths are not matching' >> ${LOG_FILE_NAME}
-   exit 1
+	echo 'PORTS and DSCP Array Lengths are not matching' >>${LOG_FILE_NAME}
+	exit 1
 fi
 
-# Check if Responder processes are running
-if [[  ${TWAMP_RESPONDER_PROC_NUM} -eq 0  ]]; then
+# Check if Responder process is running for each DSCP value
+for i in ${!DSCP[@]}; do
 
-    echo '******************************************************' >> ${LOG_FILE_NAME}
-    echo "TWAMP Responder Starting @ $(date)" >>${LOG_FILE_NAME}
-    echo '******************************************************' >> ${LOG_FILE_NAME}
+	if [[ $(ps aux | grep "python3 twampycsv.py responder --dscp ${DSCP[i]} ${TWAMP_RESPONDER_OPTIONS}
+	${LOCAL_END_IP}:${PORTS[i]}" | grep -v "grep" | wc -l ) -eq 1 ]]; then
 
-    for i in ${!DSCP[@]}; do
-        /sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py responder \
-         --dscp ${DSCP[i]} --padding 1 ${LOCAL_END_IP}:${PORTS[i]} \
-            >>${LOG_FILE_NAME} 2>&1 & done
-else
-    echo "$(date) Responder Processes Already Running as below: " >> ${LOG_FILE_NAME}
-    echo "${TWAMP_RESPONDER_PROCS}"  >> ${LOG_FILE_NAME}
-fi
+		echo "$(date) Responder Processes for DSCP ${DSCP[i]} Already Running" >>${LOG_FILE_NAME}
+
+	else
+
+	    echo '******************************************************' >>${LOG_FILE_NAME}
+        echo "TWAMP Responder for DSCP ${DSCP[i]} Starting @ $(date)" >>${LOG_FILE_NAME}
+        echo '******************************************************' >>${LOG_FILE_NAME}
+
+
+		/sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py responder \
+			--dscp ${DSCP[i]} ${TWAMP_RESPONDER_OPTIONS} ${LOCAL_END_IP}:${PORTS[i]} \
+			>>${LOG_FILE_NAME} 2>&1 &
+	fi
+done
+exit 0

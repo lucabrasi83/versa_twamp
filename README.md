@@ -14,8 +14,8 @@ TWAMP session results are saved within a CSV file named twamp_stats.csv in the /
 ## Installation
 1. Login as root user on the Versa FlexVNF Shell
 
-2. Create twamp directory in /home/admin directory:
-    - `mkdir /home/admin/twamp`
+2. Create twamp directory in /home/admin directory and set permissions for admin user to access the directory:
+    - `mkdir /home/admin/twamp && chmod 777 /home/admin/twamp`
 
 3. Copy the Python script twampycsv.py and Shell scripts (twamp_sender.sh / twamp_responder.sh) in the 
 `/home/admin/twamp` directory.
@@ -62,36 +62,39 @@ These parameters can be customized in the variables set in the file as below:
 
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
-PORTS=(20001 20002 20003)
-DSCP=(ef af31 cs7)
+PORTS=("20001" "20002" "20003")
+DSCP=("ef" "af31" "cs7")
 ```
 
 ##### Versa FlexVNF Remote TWAMP responder IP
 ```
-FAR_END_IP=192.168.1.120
+FAR_END_IP="198.18.10.10"
 ```
 
 ##### Versa FlexVNF Local IP to source TWAMP packets
 ```
-LOCAL_END_IP=192.168.1.28
+LOCAL_END_IP="198.18.10.20"
 ```
 
 ##### Remote Name of the Versa Responder
 ```
-REMOTE_HOSTNAME=REMOTEPC
+REMOTE_HOSTNAME="D-Hub-1"
 ```
 
 ##### Standard Output & Error will be recorded in this file
 ```
-LOG_FILE_NAME=twamp_logs.txt
+LOG_FILE_NAME="twamp_logs.txt"
 ```
 
 ##### Versa FlexVNF Local VR to access network namespace
 ```
-VERSA_TRANSPORT_VR=INTERNET-Transport-VR
+VERSA_TRANSPORT_VR="INTERNET-Transport-VR"
 ```
 
-Standard Output and Error will be logged in the file specified in `LOG_FILE_NAME`
+##### TWAMP Session Options to be passed to the Python utility
+```
+TWAMP_SENDER_OPTIONS="-c 20 -i 100 --padding 1"
+```
 
 
 ## Responder
@@ -105,27 +108,33 @@ These parameters can be customized in the variables set in the file as below:
 
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
-PORTS=(20001 20002 20003)
-DSCP=(ef af31 cs7)
+PORTS=("20001" "20002" "20003")
+DSCP=("ef" "af31" "cs7")
 ```
 
 ##### Versa FlexVNF Local IP to source TWAMP packets
 ```
-LOCAL_END_IP=192.168.1.120
+LOCAL_END_IP="198.18.10.10"
 ```
 
 ##### Standard Output & Error will be recorded in this file
 ```
-LOG_FILE_NAME=twamp_logs.txt
+LOG_FILE_NAME="twamp_logs.txt"
 ```
 
 ##### Versa FlexVNF Local VR to access network namespace
 ```
-VERSA_TRANSPORT_VR=WAN-Transport-VR
+VERSA_TRANSPORT_VR="WAN-Transport-VR"
 ```
 
-Standard Output and Error will be logged in the file specified in `LOG_FILE_NAME`
+##### TWAMP Session Options to be passed to the Python utility
+```
+TWAMP_RESPONDER_OPTIONS="--padding 1"
+```
 
-The twamp_responder.sh script will check every 5 minutes if there are active Python processes running the TWAMP 
-script as responder. If yes, then nothing happens. If for any reason the processes don't exist anymore, the script will 
-attempt to relaunch them.
+The twamp_responder.sh script will check every interval specified in the Cron Job, if there are active Python responder 
+processes running the TWAMP with the given parameters. If yes, then nothing happens. If for any reason one or more 
+processes don't exist anymore, the script will attempt to relaunch them.
+
+***NOTE: You can pass the kill argument to the twamp responder Shell script to kill all ongoing Python responder 
+processes: `./twamp_responder.sh kill`***

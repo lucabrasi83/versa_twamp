@@ -296,6 +296,8 @@ class twampStatistics():
                      "Round Trip Avg Delay", "Round Trip Jitter", "Round Trip Loss",
                      ]
                 )
+                # Set Permissions on CSV file automatically
+                os.chmod("twamp_stats.csv", 0o666)
 
         print("===============================================================================")
         print("Direction         Min         Max         Avg          Jitter     Loss")
@@ -311,7 +313,7 @@ class twampStatistics():
             # dp(self.sumOB / self.count), dp(self.jitterOB), 100 * float(self.lossOB) / total))
             # print("  Inbound:     %s  %s  %s  %s    %5.1f%%" % (dp(self.minIB), dp(self.maxIB),
             # dp(self.sumIB / self.count), dp(self.jitterIB), 100 * float(self.lossIB) / total))
-            print("  Roundtrip:     %s       %s       %s         %s     %5.1f%%" %
+            print("  Roundtrip:     %s       %s     %s      %s   %5.1f%%" %
             (dp(self.minRT), dp(self.maxRT),
             dp(self.sumRT / self.count), dp(self.jitterRT), 100 * float(self.lossRT) / total))
 
@@ -373,6 +375,7 @@ class twampySessionSender(udpSession):
     @staticmethod
     def tos_to_dscp(val):
         tos_to_dscp_map = {
+            0: "BE",
             32: "CS1",
             40: "AF11",
             48: "AF12",
@@ -695,20 +698,20 @@ def twamp_ctclient(args):
 
 #############################################################################
 # Modified by Seb P - Incorrect DSCP to TOS mappings in original script
-dscpmap = {"be": 0, "cp1": 1, "cp2": 2, "cp3": 3, "cp4": 4, "cp5": 5, "cp6": 6, "cp7": 7,
-           "cs1": 32, "cp9": 9, "af11": 40, "cp11": 11, "af12": 48, "cp13": 13, "af13": 56,
-           "cp15": 15,
-           "cs2": 64, "cp17": 17, "af21": 72, "cp19": 19, "af22": 80, "cp21": 21, "af23": 88,
-           "cp23": 23,
-           "cs3": 96, "cp25": 25, "af31": 104, "cp27": 27, "af32": 112, "cp29": 29, "af33": 120,
-           "cp31": 31,
-           "cs4": 128, "cp33": 33, "af41": 136, "cp35": 35, "af42": 144, "cp37": 37, "af43": 152,
-           "cp39": 39,
-           "cs5": 160, "cp41": 41, "cp42": 42, "cp43": 43, "cp44": 44, "cp45": 45, "ef": 184,
-           "cp47": 47,
-           "nc1": 48, "cp49": 49, "cp50": 50, "cp51": 51, "cp52": 52, "cp53": 53, "cp54": 54,
-           "cp55": 55,
-           "nc2": 56, "cp57": 57, "cp58": 58, "cp59": 59, "cp60": 60, "cp61": 61, "cp62": 62,
+dscpmap = {"be": 0, "cp1": 4, "cp2": 8, "cp3": 12, "cp4": 16, "cp5": 20, "cp6": 24, "cp7": 28,
+           "cs1": 32, "cp9": 36, "af11": 40, "cp11": 44, "af12": 48, "cp13": 52, "af13": 56,
+           "cp15": 60,
+           "cs2": 64, "cp17": 68, "af21": 72, "cp19": 76, "af22": 80, "cp21": 84, "af23": 88,
+           "cp23": 92,
+           "cs3": 96, "cp25": 100, "af31": 104, "cp27": 108, "af32": 112, "cp29": 116, "af33": 120,
+           "cp31": 124,
+           "cs4": 128, "cp33": 132, "af41": 136, "cp35": 140, "af42": 144, "cp37": 148, "af43": 152,
+           "cp39": 156,
+           "cs5": 160, "cp41": 164, "cp42": 168, "cp43": 172, "cp44": 176, "cp45": 180, "ef": 184,
+           "cp47": 188,
+           "nc1": 192, "cp49": 196, "cp50": 200, "cp51": 204, "cp52": 208, "cp53": 212, "cp54": 216,
+           "cp55": 220,
+           "nc2": 224, "cp57": 228, "cp58": 232, "cp59": 236, "cp60": 240, "cp61": 244, "cp62": 248,
            "cp63": 63, "cs6": 192, "cs7": 224}
 
 
