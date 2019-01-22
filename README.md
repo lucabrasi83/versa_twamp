@@ -64,7 +64,7 @@ These parameters can be customized in the variables set in the file as below:
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
 PORTS=("20001" "20002" "20003")
-DSCP=("ef" "af31" "cs7")
+DSCP=("ef" "af41" "af33")
 ```
 
 ##### Versa FlexVNF Remote TWAMP responder IP
@@ -121,7 +121,7 @@ These parameters can be customized in the variables set in the file as below:
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
 PORTS=("20001" "20002" "20003")
-DSCP=("ef" "af31" "cs7")
+DSCP=("ef" "af41" "af33")
 ```
 
 ##### Versa FlexVNF Local IP to source TWAMP packets
