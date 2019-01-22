@@ -284,25 +284,27 @@ class twampStatistics():
 
         self.count += 1
 
-    def dump(self, total, now, local_hostname, remote_hostname, dscp):
+    def dump(self, total, now, local_hostname, remote_hostname, cos):
+
+        twamp_csv_file = "twamp_stats_" + local_hostname + ".csv"
 
         # Create CSV File with headers if it does not exist
-        if not os.path.exists("twamp_stats.csv"):
-            with open("twamp_stats.csv", "w") as twamp_csv:
-                twamp_csv_writer = csv.writer(twamp_csv, delimiter=",")
-                twamp_csv_writer.writerow(
-                    ["Timestamp", "Source Device", "Object Name", "DSCP",
-                     "Round Trip Min Delay", "Round Trip Max Delay",
-                     "Round Trip Avg Delay", "Round Trip Jitter", "Round Trip Loss",
-                     ]
-                )
-                # Set Permissions on CSV file automatically
-                os.chmod("twamp_stats.csv", 0o666)
+        # if not os.path.exists("twamp_stats.csv"):
+        #     with open("twamp_stats.csv", "w") as twamp_csv:
+        #         twamp_csv_writer = csv.writer(twamp_csv, delimiter=",")
+        #         twamp_csv_writer.writerow(
+        #             ["Timestamp", "Source Device", "Object Name", "DSCP",
+        #              "Round Trip Min Delay", "Round Trip Max Delay",
+        #              "Round Trip Avg Delay", "Round Trip Jitter", "Round Trip Loss",
+        #              ]
+        #         )
+
 
         print("===============================================================================")
-        print("Direction         Min         Max         Avg          Jitter     Loss")
+        print("Direction         Min         Max         Avg          Jitter      Loss")
         print("-------------------------------------------------------------------------------")
-        print("  DSCP:", dscp)
+        print("  CoS:", cos)
+        print("  Remote:", remote_hostname, "\n")
 
         # Inherit Now variable which represents Timestamps from twampySessionSender class
         timestamp = datetime.utcfromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S') + " UTC"
@@ -313,20 +315,26 @@ class twampStatistics():
             # dp(self.sumOB / self.count), dp(self.jitterOB), 100 * float(self.lossOB) / total))
             # print("  Inbound:     %s  %s  %s  %s    %5.1f%%" % (dp(self.minIB), dp(self.maxIB),
             # dp(self.sumIB / self.count), dp(self.jitterIB), 100 * float(self.lossIB) / total))
-            print("  Roundtrip:     %s       %s     %s      %s   %5.1f%%" %
+            print("  Roundtrip:      %s      %s     %s      %s    %5.1f%%" %
             (dp(self.minRT), dp(self.maxRT),
             dp(self.sumRT / self.count), dp(self.jitterRT), 100 * float(self.lossRT) / total))
 
             # Add value in CSV - Seb P
-            with open('twamp_stats.csv', 'a') as twamp_csv:
+            with open(twamp_csv_file, 'a') as twamp_csv:
                 twamp_csv_writer = csv.writer(twamp_csv, delimiter=",")
                 twamp_csv_writer.writerow(
                     [
-                     timestamp, local_hostname, local_hostname + ":" + remote_hostname, dscp,
-                     self.minRT, self.maxRT, self.sumRT / self.count,
-                     self.jitterRT, 100 * float(self.lossRT) / total
+                     timestamp,
+                     cos + "_" + local_hostname + ":" +
+                     cos + "_" + remote_hostname,             # SevOne Object Tag
+                     round(self.sumRT / self.count, 2),       # Average Round Trip Time
+                     round(self.jitterRT, 2),                 # Average Jitter
+                     100 * float(self.lossRT) / total         # Loss Percentage
                      ]
                 )
+
+            # Set File Permission
+            os.chmod(twamp_csv_file, 0o666)
         else:
             print("  NO STATS AVAILABLE (100% loss)")
 
@@ -373,36 +381,53 @@ class twampySessionSender(udpSession):
 
     # Static method to convert TOS Value to DSCP Value to be inserted in CSV File - Seb P
     @staticmethod
-    def tos_to_dscp(val):
-        tos_to_dscp_map = {
-            0: "BE",
-            32: "CS1",
-            40: "AF11",
-            48: "AF12",
-            56: "AF13",
-            64: "CS2",
-            72: "AF21",
-            80: "AF22",
-            88: "AF23",
-            96: "CS3",
-            104: "AF31",
-            112: "AF32",
-            120: "AF33",
-            128: "CS4",
-            136: "AF41",
-            144: "AF42",
-            152: "AF43",
-            160: "CS5",
-            184: "EF",
-            192: "CS6",
-            224: "CS7"
+    def tos_to_cos(val):
+        # tos_to_dscp_map = {
+        #     0: "BE",
+        #     32: "CS1",
+        #     40: "AF11",
+        #     48: "AF12",
+        #     56: "AF13",
+        #     64: "CS2",
+        #     72: "AF21",
+        #     80: "AF22",
+        #     88: "AF23",
+        #     96: "CS3",
+        #     104: "AF31",
+        #     112: "AF32",
+        #     120: "AF33",
+        #     128: "CS4",
+        #     136: "AF41",
+        #     144: "AF42",
+        #     152: "AF43",
+        #     160: "CS5",
+        #     184: "EF",
+        #     192: "CS6",
+        #     224: "CS7"
+        # }
+
+        tos_to_cos_map = {
+            0: "COS6",
+            40: "COS5",
+            48: "COS5",
+            56: "COS5",
+            72: "COS4",
+            80: "COS4",
+            88: "COS4",
+            104: "COS3",
+            112: "COS3",
+            120: "COS3",
+            136: "COS2",
+            144: "COS2",
+            152: "COS2",
+            184: "COS1"
         }
-        return tos_to_dscp_map.get(val, "Invalid TOS")
+        return tos_to_cos_map.get(val, "Invalid CoS")
 
     # Add DSCP value in property descriptor - Seb P
     @property
-    def dscp_val(self):
-        return self.tos_to_dscp(self.tos)
+    def cos_val(self):
+        return self.tos_to_cos(self.tos)
 
     def run(self):
         schedule = now()
@@ -458,7 +483,7 @@ class twampySessionSender(udpSession):
                 self.running = False
 
         # Pass Additional arguments (schedule, local_hostname, remote_hostname) to create CSV
-        self.stats.dump(idx, schedule, self.local_hostname, self.remote_hostname, self.dscp_val)
+        self.stats.dump(idx, schedule, self.local_hostname, self.remote_hostname, self.cos_val)
 
 
 class twampySessionReflector(udpSession):

@@ -58,7 +58,8 @@ The Sender wrapper Shell script will pass the parameters to be executed by the T
 These parameters can be customized in the variables set in the file as below:
 
 ##### PORTS and DSCP must be mapped accordingly for each Class of Service*
-##### Eg: PORTS=(20001 20002) DSCP=(ef cs1) -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
+##### Eg: PORTS=(20001 20002 2003) DSCP=(ef af41 af33) -> UDP port 20001 Corresponds to DSCP ef (COS1)
+##### UDP port 20002 to DSCP af41 (COS2), UDP Port 20003 to DSCP af33 (COS3)
 
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
@@ -71,6 +72,11 @@ DSCP=("ef" "af31" "cs7")
 FAR_END_IP="198.18.10.10"
 ```
 
+##### Versa FlexVNF Remote TWAMP Secondary responder IP (Optional)
+```
+SEC_FAR_END_IP=""
+```
+
 ##### Versa FlexVNF Local IP to source TWAMP packets
 ```
 LOCAL_END_IP="198.18.10.20"
@@ -79,6 +85,11 @@ LOCAL_END_IP="198.18.10.20"
 ##### Remote Name of the Versa Responder
 ```
 REMOTE_HOSTNAME="D-Hub-1"
+```
+
+##### Remote Name of the Versa Secondary Responder (Optional)
+```
+SEC_REMOTE_HOSTNAME=""
 ```
 
 ##### Standard Output & Error will be recorded in this file
@@ -93,7 +104,7 @@ VERSA_TRANSPORT_VR="INTERNET-Transport-VR"
 
 ##### TWAMP Session Options to be passed to the Python utility
 ```
-TWAMP_SENDER_OPTIONS="-c 20 -i 100 --padding 1"
+TWAMP_SENDER_OPTIONS="-c 1000 -i 60 --padding 50"
 ```
 
 
@@ -104,7 +115,8 @@ The Responder wrapper Shell script will pass the parameters to be executed by th
 These parameters can be customized in the variables set in the file as below:
 
 ##### PORTS and DSCP must be mapped accordingly for each Class of Service*
-##### Eg: PORTS=(20001 20002) DSCP=(ef cs1) -> UDP port 20001 Corresponds to DSCP ef, UDP port 20002 to DSCP cs1 )
+##### Eg: PORTS=(20001 20002 2003) DSCP=(ef af41 af33) -> UDP port 20001 Corresponds to DSCP ef (COS1)
+##### UDP port 20002 to DSCP af41 (COS2), UDP Port 20003 to DSCP af33 (COS3)
 
 ***NOTE: Make sure the UDP ports range is allowed on the Versa FlexVNF otherwise TWAMP traffic will be filtered***
 ```
@@ -129,7 +141,7 @@ VERSA_TRANSPORT_VR="WAN-Transport-VR"
 
 ##### TWAMP Session Options to be passed to the Python utility
 ```
-TWAMP_RESPONDER_OPTIONS="--padding 1"
+TWAMP_RESPONDER_OPTIONS="--padding 26"
 ```
 
 The twamp_responder.sh script will check every interval specified in the Cron Job, if there are active Python responder 
