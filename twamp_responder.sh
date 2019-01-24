@@ -12,7 +12,7 @@ DSCP=("ef" "af41" "af33")
 LOCAL_END_IP="198.18.10.10"
 
 # Standard Output & Error will be recorded in this file
-LOG_FILE_NAME="twamp_logs.txt"
+LOG_FILE_NAME="twamp_logs.log"
 
 # Versa FlexVNF Local VR to access network namespace
 VERSA_TRANSPORT_VR="WAN-Transport-VR"

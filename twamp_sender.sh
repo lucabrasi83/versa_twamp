@@ -11,8 +11,8 @@ DSCP=("ef" "af41" "af33")
 # Versa FlexVNF Remote TWAMP Primary responder IP
 FAR_END_IP="198.18.10.10"
 
-# Versa FlexVNF Remote TWAMP Secondary Responder IP (Optional)
-SEC_FAR_END_IP=""
+# Versa FlexVNF Remote TWAMP Secondary Responder IP (Required only for Versa Secondary Responder)
+SEC_FAR_END_IP="198.18.10.15"
 
 # Versa FlexVNF Local IP to source TWAMP packets
 LOCAL_END_IP="198.18.10.20"
@@ -20,11 +20,11 @@ LOCAL_END_IP="198.18.10.20"
 # Remote Name of the Versa Primary Responder
 REMOTE_HOSTNAME="D-Hub-1"
 
-# Remote Name of the Versa Secondary Responder (Optional)
-SEC_REMOTE_HOSTNAME=""
+# Remote Name of the Versa Secondary Responder (Required only for Versa Secondary Responder)
+SEC_REMOTE_HOSTNAME="D-Spoke-2"
 
 # Standard Output & Error will be recorded in this file
-LOG_FILE_NAME="twamp_logs.txt"
+LOG_FILE_NAME="twamp_logs.log"
 
 # Versa FlexVNF Local VR to access network namespace
 VERSA_TRANSPORT_VR="INTERNET-Transport-VR"
@@ -32,36 +32,65 @@ VERSA_TRANSPORT_VR="INTERNET-Transport-VR"
 # TWAMP Sender additional options
 TWAMP_SENDER_OPTIONS="-c 1000 -i 60 --padding 50"
 
-echo '***************************************************************************************' >> ${LOG_FILE_NAME}
-echo "TWAMP Sender to Destination ${FAR_END_IP} Started @ $(date)" >> ${LOG_FILE_NAME}
-echo '***************************************************************************************' >> ${LOG_FILE_NAME}
+# Kill All Python processes running responder if kill argument is passed
+if [[ $1 == 'kill' ]]; then
+	proc_array_num=$(ps aux | grep "python3 twampycsv.py sender" | grep -v "grep" | wc -l)
+
+	if [[ ${proc_array_num} -eq 0 ]]; then
+		echo "Nothing to kill"
+	else
+		proc_array=($(ps aux | grep "python3 twampycsv.py sender" | grep -v "grep" | awk '{print $2}'))
+		for p in ${proc_array[@]}; do
+			echo "Killing PID ${p}"
+			kill ${p}
+		done
+	fi
+	exit 0
+fi
+
+echo '***************************************************************************************' >>${LOG_FILE_NAME}
+echo "TWAMP Sender to Destination ${FAR_END_IP} Started @ $(date)" >>${LOG_FILE_NAME}
+echo '***************************************************************************************' >>${LOG_FILE_NAME}
 
 if [[ ${#PORTS[@]} != ${#DSCP[@]} ]]; then
-   echo 'PORTS and DSCP Array Lengths are not matching' >> ${LOG_FILE_NAME}
-   exit 1
+	echo 'PORTS and DSCP Array Lengths are not matching' >>${LOG_FILE_NAME}
+	exit 1
 fi
 
 for i in ${!DSCP[@]}; do
 	/sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py sender \
-        --dscp ${DSCP[i]} ${TWAMP_SENDER_OPTIONS} ${FAR_END_IP}:${PORTS[i]} \
+		--dscp ${DSCP[i]} ${TWAMP_SENDER_OPTIONS} ${FAR_END_IP}:${PORTS[i]} \
 		${LOCAL_END_IP}:${PORTS[i]} -rh ${REMOTE_HOSTNAME} \
-		>> ${LOG_FILE_NAME} 2>&1 &
+		>>${LOG_FILE_NAME} 2>&1 &
 done
 
 if [[ ${SEC_FAR_END_IP} != "" && ${SEC_REMOTE_HOSTNAME} != "" ]]; then
 
-    echo '***************************************************************************************' >> ${LOG_FILE_NAME}
-    echo "TWAMP Sender to Destination ${SEC_FAR_END_IP} Started @ $(date)" >> ${LOG_FILE_NAME}
-    echo '***************************************************************************************' >> ${LOG_FILE_NAME}
+	# Pause 5 seconds upon launching the probes to primary responder
+	sleep 5
 
+	# Capture current number of running TWAMP sender processes
+	proc_array_num=$(ps aux | grep "python3 twampycsv.py sender" | grep -v "grep" | wc -l)
 
-    for i in ${!DSCP[@]}; do
+	# Loop until the number of TWAMP sender processes comes down to 0
+	while [[ ${proc_array_num} -ne 0 ]]; do
+		sleep 1
+		proc_array_num=$(ps aux | grep "python3 twampycsv.py sender" | grep -v "grep" | wc -l)
+	done
 
-    /sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py sender \
-        --dscp ${DSCP[i]} ${TWAMP_SENDER_OPTIONS} ${SEC_FAR_END_IP}:${PORTS[i]} \
-		${LOCAL_END_IP}:${PORTS[i]} -rh ${SEC_REMOTE_HOSTNAME} \
-		>> ${LOG_FILE_NAME} 2>&1 &
+	echo '***************************************************************************************' >>${LOG_FILE_NAME}
+	echo "TWAMP Sender to Destination ${SEC_FAR_END_IP} Started @ $(date)" >>${LOG_FILE_NAME}
+	echo '***************************************************************************************' >>${LOG_FILE_NAME}
+
+	for i in ${!DSCP[@]}; do
+
+		/sbin/ip netns exec ${VERSA_TRANSPORT_VR} python3 twampycsv.py sender \
+			--dscp ${DSCP[i]} ${TWAMP_SENDER_OPTIONS} ${SEC_FAR_END_IP}:${PORTS[i]} \
+			${LOCAL_END_IP}:${PORTS[i]} -rh ${SEC_REMOTE_HOSTNAME} \
+			>>${LOG_FILE_NAME} 2>&1 &
 
 	done
+
 fi
+
 exit 0

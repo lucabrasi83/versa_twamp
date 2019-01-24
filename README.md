@@ -17,8 +17,8 @@ TWAMP session results are saved within a CSV file named twamp_stats.csv in the /
 2. Create twamp directory in /home/admin directory and set permissions for admin user to access the directory:
     - `mkdir /home/admin/twamp && chmod 777 /home/admin/twamp`
 
-3. Copy the Python script twampycsv.py and Shell scripts (twamp_sender.sh / twamp_responder.sh) in the 
-`/home/admin/twamp` directory.
+3. Copy the Python scripts ( twampycsv.py / ftpxfer.py ) and Shell scripts ( twamp_sender.sh / twamp_responder.sh ) in 
+the `/home/admin/twamp` directory.
 
 4. Ensure the Shell scripts are executable:
     - `cd /home/admin/twamp && chmod a+x twamp_*.sh`
@@ -33,7 +33,9 @@ TWAMP session results are saved within a CSV file named twamp_stats.csv in the /
         ```bash
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
-            */5 * * * * cd /home/admin/twamp && ./twamp_sender.sh
+            */5 * * * *  cd /home/admin/twamp && ./twamp_sender.sh
+            */10 * * * * cd /home/admin/twamp && python3 ftpxfer.py >> ftpxfer_logs.txt 2>&1
+            @weekly      cd /home/admin/twamp && rm *.log
         ```
         . Save the Cron Job definition and verify it's properly accepted with `crontab -l`
     
@@ -47,6 +49,7 @@ TWAMP session results are saved within a CSV file named twamp_stats.csv in the /
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             SHELL=/bin/bash
             */5 * * * * cd /home/admin/twamp && ./twamp_responder.sh
+            @weekly      cd /home/admin/twamp && rm *.log
         ```
         
         . Save the Cron Job definition and verify it's properly accepted with `crontab -l`
@@ -72,7 +75,7 @@ DSCP=("ef" "af41" "af33")
 FAR_END_IP="198.18.10.10"
 ```
 
-##### Versa FlexVNF Remote TWAMP Secondary responder IP (Optional)
+##### Versa FlexVNF Remote TWAMP Secondary responder IP (Required only for Versa Secondary Responder)
 ```
 SEC_FAR_END_IP=""
 ```
@@ -87,7 +90,7 @@ LOCAL_END_IP="198.18.10.20"
 REMOTE_HOSTNAME="D-Hub-1"
 ```
 
-##### Remote Name of the Versa Secondary Responder (Optional)
+##### Remote Name of the Versa Secondary Responder (Required only for Versa Secondary Responder)
 ```
 SEC_REMOTE_HOSTNAME=""
 ```
