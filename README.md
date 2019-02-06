@@ -70,19 +70,14 @@ PORTS=("20001" "20002" "20003")
 DSCP=("ef" "af41" "af33")
 ```
 
-##### Versa FlexVNF Remote TWAMP responder IP
-```
-FAR_END_IP="198.18.10.10"
-```
-
-##### Versa FlexVNF Remote TWAMP Secondary responder IP (Required only for Versa Secondary Responder)
-```
-SEC_FAR_END_IP=""
-```
-
 ##### Versa FlexVNF Local IP to source TWAMP packets
 ```
 LOCAL_END_IP="198.18.10.20"
+```
+
+##### Versa FlexVNF Remote TWAMP responder IP
+```
+FAR_END_IP="198.18.10.10"
 ```
 
 ##### Remote Name of the Versa Responder
@@ -90,9 +85,24 @@ LOCAL_END_IP="198.18.10.20"
 REMOTE_HOSTNAME="D-Hub-1"
 ```
 
+##### Versa FlexVNF Remote TWAMP Secondary responder IP (Required only for Versa Secondary Responder)
+```
+SEC_FAR_END_IP=""
+```
+
 ##### Remote Name of the Versa Secondary Responder (Required only for Versa Secondary Responder)
 ```
 SEC_REMOTE_HOSTNAME=""
+```
+
+##### Versa FlexVNF Remote TWAMP Secondary responder IP (Required only for Versa Tertiary Responder)
+```
+TER_FAR_END_IP=""
+```
+
+##### Remote Name of the Versa Secondary Responder (Required only for Versa Tertiary Responder)
+```
+TER_REMOTE_HOSTNAME=""
 ```
 
 ##### Standard Output & Error will be recorded in this file
