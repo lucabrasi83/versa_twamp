@@ -41,6 +41,9 @@ def ftp_file_transfer(obj, file_name):
               delta.total_seconds(),
               "Second(s)")
 
+        # Set file permissions after transfer
+        obj.sendcmd('SITE CHMOD 755 ' + filename_gen)
+
 
 if __name__ == "__main__":
 
